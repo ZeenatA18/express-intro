@@ -1,15 +1,15 @@
-let moment = require('moment');
+// let moment = require('moment');
 
 module.exports = function BillWithSettings() {
 
     let smsCost;
     let callCost;
     let warningLevel;
-    let criticalLevel; 
+    let criticalLevel;
 
     let actionList = [];
 
-    function setSettings (settings) {
+    function setSettings(settings) {
         smsCost = Number(settings.smsCost);
         callCost = Number(settings.callCost);
         warningLevel = settings.warningLevel;
@@ -17,7 +17,7 @@ module.exports = function BillWithSettings() {
     }
 
     function getSettings
-    () {
+        () {
         return {
             smsCost,
             callCost,
@@ -27,27 +27,31 @@ module.exports = function BillWithSettings() {
     }
     function recordAction(action) {
 
-        let cost = 0; 
-        
-        if (action === 'sms'){
+        let cost = 0;
+
+        if (action === 'sms') {
             cost = smsCost;
         }
-        else if (action === 'call'){
+        else if (action === 'call') {
             cost = callCost;
         }
-
-        actionList.push({
-            type: action,
-            cost,
-            timestamp: moment(new Date()).fromNow()
-        });
+        if (!hasReachedCriticalLevel()) {
+            if (cost > 0) {
+                actionList.push({
+                    type: action,
+                    cost,
+                    timestamp: new Date(),
+                    timestring: ""
+                });
+            }
+        }
     }
 
-    function actions(){
+    function actions() {
         return actionList;
     }
 
-    function actionsFor(type){
+    function actionsFor(type) {
         const filteredActions = [];
 
         // loop through all the entries in the action list 
@@ -96,32 +100,34 @@ module.exports = function BillWithSettings() {
         return {
             smsTotal,
             callTotal,
-            grandTotal : grandTotal().toFixed(2)
+            grandTotal: grandTotal().toFixed(2)
         }
     }
 
-    function hasReachedWarningLevel(){
+    function hasReachedWarningLevel() {
         const total = grandTotal();
-        const reachedWarningLevel = total >= warningLevel 
+        const reachedWarningLevel = total >= warningLevel
             && total < criticalLevel;
 
         return reachedWarningLevel;
     }
 
-    function hasReachedCriticalLevel(){
+    function hasReachedCriticalLevel() {
         const total = grandTotal();
         return total >= criticalLevel;
     }
 
-    function colourChange(){
-        if(hasReachedCriticalLevel()) {
+    function colourChange() {
+        if (hasReachedCriticalLevel()) {
             return "danger"
         }
 
-        if(hasReachedWarningLevel()){
+        if (hasReachedWarningLevel()) {
             return "warning"
         }
     }
+
+
 
     return {
         setSettings,
@@ -132,6 +138,7 @@ module.exports = function BillWithSettings() {
         totals,
         hasReachedWarningLevel,
         hasReachedCriticalLevel,
-        colourChange
+        colourChange,
+
     }
 }

@@ -3,6 +3,7 @@ const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 // const settingsBill = require('./settingsbill');
 const settingsBill = require('./settingsbill');
+const moment = require('moment');
 // const settingsbill = require('./settingsbill');
 
 const app = express();
@@ -48,7 +49,14 @@ app.post('/action', function (req, res) {
 })
 
 app.get('/actions', function (req, res) {
-res.render('actions', {actions: settingsbill.actions()}); 
+  let billy = settingsbill.actions()
+
+for(let key of billy){
+  key.timestring = moment(key.timestamp,'MMMM Do YYYY, h:mm:ss').fromNow()
+}
+
+res.render('actions', {actions: billy }); 
+
 })
 
 app.get('/actions/:actionType', function (req, res) {
