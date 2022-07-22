@@ -21,7 +21,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.get('/', function (req, res) {
-  console.log(settingsbill.getSettings())
   res.render('index', {
     setting: settingsbill.getSettings(),
     totals: settingsbill.totals(),
@@ -60,12 +59,19 @@ res.render('actions', {actions: billy });
 })
 
 app.get('/actions/:actionType', function (req, res) {
+let billys = settingsbill.actionsFor(actionType)
+
+for(let key of billys){
+  key.timestring = moment(key.timestamp,'MMMM Do YYYY, h:mm:ss').fromNow()
+}
+
   const actionType = req.params.actionType;
-  res.render('actions', {actions: settingsbill.actionsFor(actionType)});
+
+  res.render('actions', {actions: billys});
 })
 
 const PORT = process.env.PORT || 3011;
 
 app.listen(PORT, function () {
-  console.log("App started at port", PORT)
+ 
 })
